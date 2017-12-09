@@ -26,12 +26,8 @@ dependencies {
     })
     compile 'com.android.support:appcompat-v7:26.+'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
-
-    //loopj - https://github.com/loopj/android-async-http
     compile 'com.loopj.android:android-async-http:1.4.9'
-    //SwirlView https://github.com/mattprecious/swirl
     compile 'com.mattprecious.swirl:swirl:1.0.0'
-    //Ask https://github.com/00ec454/Ask
     compile 'com.vistrav:ask:2.5'
 
     

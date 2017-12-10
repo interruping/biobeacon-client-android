@@ -21,5 +21,7 @@
         <item name="android:windowActionBar">false</item>
         <item name="android:windowFullscreen">true</item>
         <item name="android:windowContentOverlay">@null</item>
+        <item name="swirl_ridgeColor">@color/colorAccent</item>
+        <item name="swirl_errorColor">@color/colorError</item>
     </style>
 </resources>

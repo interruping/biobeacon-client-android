@@ -126,7 +126,7 @@ public class LoginActivity extends AppCompatActivity {
 
                 try {
                     String rawToken = response.getString("token");
-                    CookieManager.getInstance().setCookie(getString(R.string.token_key), rawToken);
+                    CookieManager.getInstance().setCookie(getString(R.string.token_key), "JWT" + " " + rawToken);
                     loginSucessHandle();
                 } catch (Exception e) {
                     //로그인은 성공하였으나 토큰값을 못 받아올 때.

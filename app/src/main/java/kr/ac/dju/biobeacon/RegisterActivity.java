@@ -1,5 +1,7 @@
 package kr.ac.dju.biobeacon;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -150,11 +152,54 @@ public class RegisterActivity extends AppCompatActivity {
             }
         });
     }
+    /*!
+    @brief 회원가입 입력 중 누락 확인
+     */
+    private boolean checkBlank() {
+        boolean result = false;
 
+        if ( result ) return true;
+
+        result = _lastnameEditText.getText().toString().isEmpty();
+        if ( result ) return true;
+        result = _firstnameEditText.getText().toString().isEmpty();
+        if ( result ) return true;
+        result = _usernameEditText.getText().toString().isEmpty();
+        if ( result ) return true;
+        result = _passwordEditText.getText().toString().isEmpty();
+        if ( result ) return true;
+        result = _passwordConfirmEditText.getText().toString().isEmpty();
+        if ( result ) return true;
+        result = _passwordConfirmEditText.getText().toString().equals(_passwordEditText.getText().toString()) ? false : true;
+        if ( result ) return true;
+        result = _idNumEditText.getText().toString().isEmpty();
+        if ( result ) return true;
+        result = _uploadedImageId == 0 ? true : false;
+        if ( result ) return true;
+        result = _departmentsSpinner.getSelectedItemPosition() == 0 ? true : false;
+
+        return result;
+    }
     /*!
     @brief 회원가입 하기
      */
     private void doRegister() {
+        if ( checkBlank() ) {
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+            alertDialogBuilder.setTitle("회원가입 오류");
+            alertDialogBuilder.setMessage("입력하지 않은 값이 있습니다.");
+            alertDialogBuilder.setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    //확인을 눌렀을 때
+                }
+            });
+            alertDialogBuilder.setCancelable(false);
+            alertDialogBuilder.show();
+
+            return;
+        }
+
 
     }
 
@@ -268,6 +313,7 @@ public class RegisterActivity extends AppCompatActivity {
                 try {
                     Picasso.with(self).load(getString(R.string.server_url) + response.getString("uploaded_url"))
                             .into(_profileImageButton);
+                    _uploadedImageId = response.getInt("image_id");
                 } catch (Exception e){
                     //응답은 성공하였으나 값을 제대로 못 받음
                     e.printStackTrace();

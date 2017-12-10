@@ -2,6 +2,7 @@ package kr.ac.dju.biobeacon;
 
 import android.app.Fragment;
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -90,6 +91,7 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 //빠른 출석버튼을 눌렀을 때
+                doQuickCheck();
             }
         });
     }
@@ -132,6 +134,14 @@ public class ProfileFragment extends Fragment {
                 super.onFailure(statusCode, headers, throwable, errorResponse);
             }
         });
+    }
+
+    /*!
+    @brief 빠른 출석 액티비티 띄움
+     */
+    private void doQuickCheck () {
+        Intent attendanceCheckIntent = new Intent(getActivity(), AttendanceCheckActivity.class);
+        startActivity(attendanceCheckIntent);
     }
 
     @Override

@@ -6,7 +6,9 @@
     <string name="department_list_url">/attendance_check/api/department/list/</string>
     <string name="profile_image_upload_url">/attendance_check/api/profile/image/upload/</string>
     <string name="user_auth_url">/attendance_check/api/user_auth/</string>
+    <string name="profile_url">/attendance_check/api/profile/</string>
 
+    <string name="auth_key">Authorization</string>
     <string name="token_key">biobeaon-token-key</string>
 
     <string name="title_activity_menu">MenuActivity</string>
@@ -15,4 +17,7 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="action_settings">Settings</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

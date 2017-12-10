@@ -3,6 +3,8 @@ package kr.ac.dju.biobeacon;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -70,6 +72,7 @@ public class ProfileFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_profile, container, false);
+
         initViewElements(rootView);
         loadProfileFromServer();
         return rootView;
@@ -94,6 +97,8 @@ public class ProfileFragment extends Fragment {
                 doQuickCheck();
             }
         });
+        //프로필 이미지가 불러와지면 빠른출석 버튼이 뜨게한다 따라서 처음엔 숨긴다
+        _quickCheckButton.setVisibility(View.INVISIBLE);
     }
 
     /*!
@@ -122,6 +127,8 @@ public class ProfileFragment extends Fragment {
                     Picasso.with(getActivity())
                             .load(getString(R.string.server_url) + response.getString("profile_image"))
                             .into(_profileImageView);
+                    //프로필 이미지를 불러 왔음으로 빠른 출석버튼 보이게 함.
+                    _quickCheckButton.setVisibility(View.VISIBLE);
                 } catch (Exception e) {
                     //응답은 성공하였으나 값이 올바르지 않음
                     e.printStackTrace();
@@ -141,6 +148,9 @@ public class ProfileFragment extends Fragment {
      */
     private void doQuickCheck () {
         Intent attendanceCheckIntent = new Intent(getActivity(), AttendanceCheckActivity.class);
+        BitmapDrawable drawable = (BitmapDrawable) _profileImageView.getDrawable();
+        Base64EncodedImagePassHelper.save(BitmapUtil.BitmapToBase64(drawable.getBitmap()));
+        attendanceCheckIntent.putExtra("username", _usernameTextView.getText().toString());
         startActivity(attendanceCheckIntent);
     }
 

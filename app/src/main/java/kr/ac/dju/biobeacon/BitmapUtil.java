@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
+import android.util.Base64;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -62,5 +63,15 @@ public class BitmapUtil {
         srcBitmap.compress(Bitmap.CompressFormat.PNG, 0 /*ignored for PNG*/, bos);
         byte[] bitmapdata = bos.toByteArray();
         return new ByteArrayInputStream(bitmapdata);
+    }
+
+    /*!
+    @breif 비트맵을 Base64 스트링으로 변환
+     */
+    public static String BitmapToBase64(Bitmap srcBitmap) {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        srcBitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+        byte[] byteArray = byteArrayOutputStream .toByteArray();
+        return Base64.encodeToString(byteArray, Base64.DEFAULT);
     }
 }

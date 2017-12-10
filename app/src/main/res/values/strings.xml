@@ -20,4 +20,12 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="kairos_app_id">65d48488</string>
+    <string name="kairos_key">cf22dba7a5bd55519fec18f9801b3fe6</string>
+    <string name="karios_base_url">https://api.kairos.com</string>
+    <string name="karios_enroll_url">/enroll</string>
+    <string name="karios_verify_url">/verify</string>
+    <string name="karios_remove">/gallery/remove</string>
+    <string name="karios_gallery">gallery</string>
 </resources>

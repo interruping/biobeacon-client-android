@@ -29,7 +29,7 @@ dependencies {
     compile 'com.loopj.android:android-async-http:1.4.9'
     compile 'com.mattprecious.swirl:swirl:1.0.0'
     compile 'com.vistrav:ask:2.5'
-
+    compile 'com.squareup.picasso:picasso:2.5.2'
     
     testCompile 'junit:junit:4.12'
 }

@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">BioBeacon</string>
     <string name="title_activity_register">RegisterActivity</string>
+
+    <string name="server_url">http://192.168.219.184:8000</string>
+    <string name="department_list_url">/attendance_check/api/department/list/</string>
+    <string name="profile_image_upload_url">/attendance_check/api/profile/image/upload/</string>
 </resources>

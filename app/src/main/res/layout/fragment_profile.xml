@@ -160,7 +160,7 @@
                 android:layout_marginLeft="0dp"
                 android:layout_marginRight="8dp"
                 android:layout_marginTop="0dp"
-                android:text="TextView"
+                android:text="email"
                 app:layout_constraintBottom_toBottomOf="@+id/email_label_textView"
                 app:layout_constraintLeft_toLeftOf="@+id/name_textView"
                 app:layout_constraintRight_toRightOf="parent"

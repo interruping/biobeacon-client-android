@@ -1,18 +1,20 @@
 package kr.ac.dju.biobeacon;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.hardware.fingerprint.FingerprintManager;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -25,6 +27,9 @@ import com.mattprecious.swirl.SwirlView;
 import com.multidots.fingerprintauth.AuthErrorCodes;
 import com.multidots.fingerprintauth.FingerPrintAuthCallback;
 import com.multidots.fingerprintauth.FingerPrintAuthHelper;
+import com.vistrav.ask.Ask;
+import com.vistrav.ask.annotations.AskDenied;
+import com.vistrav.ask.annotations.AskGranted;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -42,6 +47,10 @@ public class AttendanceCheckActivity extends AppCompatActivity implements Finger
 
     //상수 선언
     public static int REQUEST_TAKE_PHOTO = 0;
+    /*!
+    @brief 비콘 권한 설정 로그 텍스트
+     */
+    private static final String TAG = AttendanceCheckActivity.class.getSimpleName();
 
     //모델 선언
     /*!
@@ -99,15 +108,35 @@ public class AttendanceCheckActivity extends AppCompatActivity implements Finger
      */
     TextView _fingerprintInfoTextView;
 
-
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_attendance_check);
         initModelElements();
         initViewElements();
         _fingerprintAuthHelper.startAuth();
+
+        Ask.on(this)
+                .forPermissions(Manifest.permission.ACCESS_FINE_LOCATION)
+                .withRationales("비콘 감지를 위한 권한을 요청합니다.") //optional
+                .go();
     }
+
+    /*!
+    @brief 비콘 권한 설정
+     */
+    //optional
+    @AskGranted(Manifest.permission.ACCESS_FINE_LOCATION)
+    public void mapAccessGranted(int id) {
+        Log.i(TAG, "MAP GRANTED");
+    }
+
+    //optional
+    @AskDenied(Manifest.permission.ACCESS_FINE_LOCATION)
+    public void mapAccessDenied(int id) {
+        Log.i(TAG, "MAP DENIED");
+    }
+
+
 
     /*!
     @brief 모델 요소 초기화

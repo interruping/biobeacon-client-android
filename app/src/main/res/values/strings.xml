@@ -2,11 +2,18 @@
     <string name="app_name">BioBeacon</string>
     <string name="title_activity_register">RegisterActivity</string>
 
-    <string name="server_url">http://172.30.1.43:8000</string>
+
+    <string name="server_url">http://192.168.43.248:8000</string>
     <string name="department_list_url">/attendance_check/api/department/list/</string>
     <string name="profile_image_upload_url">/attendance_check/api/profile/image/upload/</string>
     <string name="user_auth_url">/attendance_check/api/user_auth/</string>
     <string name="profile_url">/attendance_check/api/profile/</string>
+
+    <string name="fast_lecture_search">/attendance_check/api/lecture/fastest/view/</string>
+    <string name="beacon_check_request">/attendance_check/api/lecture/check/uuid/</string>
+
+
+
     <string name="profile_upload">/attendance_check/api/user_register/</string>
     <string name="auth_key">Authorization</string>
     <string name="token_key">biobeaon-token-key</string>

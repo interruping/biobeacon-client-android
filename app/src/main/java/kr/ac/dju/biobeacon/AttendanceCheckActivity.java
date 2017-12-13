@@ -1,47 +1,82 @@
 package kr.ac.dju.biobeacon;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.hardware.fingerprint.FingerprintManager;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.Message;
+import android.os.RemoteException;
 import android.provider.MediaStore;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.CookieManager;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
 import com.mattprecious.swirl.SwirlView;
 import com.multidots.fingerprintauth.AuthErrorCodes;
 import com.multidots.fingerprintauth.FingerPrintAuthCallback;
 import com.multidots.fingerprintauth.FingerPrintAuthHelper;
+import com.vistrav.ask.Ask;
+import com.vistrav.ask.annotations.AskDenied;
+import com.vistrav.ask.annotations.AskGranted;
 
+import org.altbeacon.beacon.Beacon;
+import org.altbeacon.beacon.BeaconConsumer;
+import org.altbeacon.beacon.BeaconManager;
+import org.altbeacon.beacon.BeaconParser;
+import org.altbeacon.beacon.RangeNotifier;
+import org.altbeacon.beacon.Region;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
 import pl.bclogic.pulsator4droid.library.PulsatorLayout;
 
-public class AttendanceCheckActivity extends AppCompatActivity implements FingerPrintAuthCallback{
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
+import static java.lang.Double.parseDouble;
+
+public class AttendanceCheckActivity extends AppCompatActivity implements FingerPrintAuthCallback, BeaconConsumer {
 
     //상수 선언
     public static int REQUEST_TAKE_PHOTO = 0;
+    /*!
+    @brief 비콘 권한 설정 로그 텍스트
+     */
+    private static final String TAG = AttendanceCheckActivity.class.getSimpleName();
+    /*!
+    @brief 비콘 최대 거리설정(M단위)
+     */
+    private  static int BEACON_REMIT_RANGE = 10;
+    /*!
+    @brief 비콘 최대 거리설정(M단위)
+     */
+
+
 
     //모델 선언
     /*!
@@ -68,6 +103,13 @@ public class AttendanceCheckActivity extends AppCompatActivity implements Finger
     @breif 얼굴 등록 실패 여부 플래그
      */
     boolean _enrollFail;
+    /*!
+    @breif 얼굴인식 여부 플래그
+     */
+    boolean _isFaceRecognition;
+
+
+
 
     //뷰 선언
     /*!
@@ -98,16 +140,117 @@ public class AttendanceCheckActivity extends AppCompatActivity implements Finger
     @breif 지문 인식 안내 텍스트
      */
     TextView _fingerprintInfoTextView;
+    /*!
+    @breif 지문인식 성공여부
+     */
+    boolean _isFingerprintFlag;
+    /*!
+    @breif 지문인식 제한시간
+     */
+    int _fingerprintLimitTimeCount;
 
 
-    @Override
+
+    /*!
+    @breif  비콘 거리 값
+     */
+    int _beaconLimitDistance;
+    /*!
+    @breif 비콘매니졀
+     */
+    BeaconManager _beaconManager;
+    /*!
+    @breif 감지된 비콘들을 임시로 담을 리스트
+     */
+    List<Beacon> beaconList = new ArrayList<>();
+    /*!
+    @breif 비콘 정보 출력 텍스트
+     */
+    TextView _beaconSerchDataTextView;
+    /*!
+    @breif 비콘 UUID저장
+     */
+    String _beaconUuidTextData;
+    /*!
+    @breif 비콘 연결 확인 플래그
+     */
+    boolean _isBeaconConnectFlag;
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_attendance_check);
         initModelElements();
         initViewElements();
+
+
+
+
+        _flagCheckingHandler.sendEmptyMessage(0);
+        //비콘 탐지 및 지문인식 상태 확인
         _fingerprintAuthHelper.startAuth();
+
+
+        /*!
+        @breif 비콘 권한 요구
+         */
+        Ask.on(this)
+                .forPermissions(Manifest.permission.ACCESS_FINE_LOCATION)
+                .withRationales("비콘 감지를 위한 권한을 요청합니다.") //optional
+                .go();
+        /*!
+        @breif 비콘 객체 초기화
+         */
+        _beaconManager = BeaconManager.getInstanceForApplication(this);
+        _beaconSerchDataTextView = (TextView) findViewById(R.id.beacon_searh_data_textView);
+
+        /*!
+        @breif 비콘 탐지 레이아웃 설정
+         */
+        _beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout("m:2-3=0215,i:4-19,i:20-21,i:22-23,p:24-24,d:25-25"));
+
+        /*!
+        @breif 비콘 탐지 시작
+         */
+        _beaconManager.bind(this);
     }
+
+    @Override
+    protected  void onRestart(){
+        super.onRestart();
+        _flagCheckingHandler.sendEmptyMessage(0);//플래그 확인 핸들러 시작
+
+    }
+    protected  void onStop() {
+        super.onStop();
+        _flagCheckingHandler.removeMessages(0);//플래그 확인 핸들러 종료
+        // 지문 인식 종료
+        _fingerprintAuthHelper.stopAuth();
+        //비콘탐지 종료
+        _beaconManager.unbind(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        _beaconManager.unbind(this);//비콘 종료
+    }
+
+    /*!
+    @brief 비콘 권한 설정
+     */
+    //optional
+    @AskGranted(Manifest.permission.ACCESS_FINE_LOCATION)
+    public void mapAccessGranted(int id) {
+        Log.i(TAG, "MAP GRANTED");
+    }
+
+    //optional
+    @AskDenied(Manifest.permission.ACCESS_FINE_LOCATION)
+    public void mapAccessDenied(int id) {
+        Log.i(TAG, "MAP DENIED");
+    }
+
+
 
     /*!
     @brief 모델 요소 초기화
@@ -150,11 +293,17 @@ public class AttendanceCheckActivity extends AppCompatActivity implements Finger
         hideFaceVerifyInfo();
     }
 
+
     @Override
     protected void onPause() {
         super.onPause();
+        //얼굴인식 플래그 종료
+        _isFaceRecognition=FALSE;
+        _isFingerprintFlag=FALSE;
         // 지문 인식 종료
-        _fingerprintAuthHelper.stopAuth();
+        //_fingerprintAuthHelper.stopAuth();
+        //비콘탐지 종료
+        //_beaconManager.unbind(this);
     }
 
     @Override
@@ -218,8 +367,11 @@ public class AttendanceCheckActivity extends AppCompatActivity implements Finger
     @Override
     public void onAuthSuccess(FingerprintManager.CryptoObject cryptoObject) {
         //Authentication sucessful.
-        if ( _fingerprintSwirlView != null )
+        if ( _fingerprintSwirlView != null ) {
+
             _fingerprintSwirlView.setState(SwirlView.State.ON);
+            _isFingerprintFlag = TRUE;
+            }
         _fingerprintInfoTextView.setText("지문 인식 성공");
 
     }
@@ -415,6 +567,7 @@ public class AttendanceCheckActivity extends AppCompatActivity implements Finger
                     if ( confidence > 0.6f) {
                         //얼굴 일치
                         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(self);
+                        _isFaceRecognition = TRUE;
                         alertDialogBuilder.setTitle("얼굴 인식 성공");
                         alertDialogBuilder.setMessage("프로필 사진의 얼굴과 일치하는 것을 확인하였습니다");
                         alertDialogBuilder.setPositiveButton("확인", new DialogInterface.OnClickListener() {
@@ -466,4 +619,175 @@ public class AttendanceCheckActivity extends AppCompatActivity implements Finger
             }
         });
     }
+
+    //비콘 연결시 작동
+    @Override
+    public void onBeaconServiceConnect() {
+
+
+        _beaconManager.addRangeNotifier(new RangeNotifier() {
+            @Override
+            // 비콘이 감지되면 해당 함수가 호출된다. Collection<Beacon> beacons에는 감지된 비콘의 리스트가,
+            // region에는 비콘들에 대응하는 Region 객체가 들어온다.
+            public void didRangeBeaconsInRegion(Collection<Beacon> beacons, Region region) {
+                if (beacons.size() > 0) {
+                    beaconList.clear();
+                    for (Beacon beacon : beacons) {
+                        beaconList.add(beacon);
+                    }
+                }
+            }
+
+        });
+
+        try {
+            _beaconManager.startRangingBeaconsInRegion(new Region("myRangingUniqueId", null, null, null));
+        } catch (RemoteException e) {
+        }
+
+        AttendanceCheckActivity.this.beaconSert();//비콘 출력,탐지
+    }
+
+    public void beaconSert() {
+        // 아래에 있는 handleMessage를 부르는 함수. 맨 처음에는 0초간격이지만 한번 호출되고 나면
+        // 1초마다 불러온다.
+        for (Beacon beacon : beaconList) {
+            if ((beacon.getDistance()) < BEACON_REMIT_RANGE) {
+                _beaconSearchHandler.sendEmptyMessage(0);
+            }
+
+
+        }
+        _beaconSearchHandler.sendEmptyMessage(0);
+    }
+
+    Handler _beaconSearchHandler = new Handler() {
+        public void handleMessage(Message msg) {
+            _isBeaconConnectFlag=TRUE;
+
+            int flag = 0;
+            //ckBea();
+            _beaconSerchDataTextView.setText("");
+            // 비콘의 아이디와 거리를 측정하여 textView에 넣는다.
+            for (Beacon beacon : beaconList) {
+
+                _beaconUuidTextData = (beacon.getId1().toString()).replace("-","");
+                _beaconLimitDistance = (int)parseDouble(String.format("%.3f", beacon.getDistance()));
+                _beaconSerchDataTextView.append("강의실 : " + _beaconUuidTextData.substring(15, 20)  + "\nDistance : " + parseDouble(String.format("%.3f", beacon.getDistance())) + "m\n");
+                _beaconSearchStatusTextView.setText("비콘 연결됨");
+
+
+                //거리가 range변수를 넘어가면 탈출
+                if ((beacon.getDistance()) > BEACON_REMIT_RANGE) {
+                    //nonckBea(); //비콘해제
+                    flag = 1;
+                    _beaconSerchDataTextView.setText("");
+                    _beaconUuidTextData = "";
+                    _beaconSearchStatusTextView.setText("비콘 찾는 중");
+                    _beaconLimitDistance=0;
+                }
+
+            }
+
+            if (flag == 0)
+                // 자기 자신을 1초마다 호출
+                _beaconSearchHandler.sendEmptyMessageDelayed(0, 1000);
+        }
+    };
+
+    Handler _flagCheckingHandler = new Handler() {
+        public void handleMessage(Message msg) {
+
+            beaconSert();
+
+            //비콘 탐지와 생체
+            if(_isBeaconConnectFlag==TRUE&&_isFingerprintFlag==TRUE||_isBeaconConnectFlag==TRUE&&_isFaceRecognition==TRUE)
+            {
+
+
+                beaconCheckRequest();
+
+                _isFingerprintFlag=FALSE;
+                _isFaceRecognition=FALSE;
+
+                _fingerprintSwirlView.setState(SwirlView.State.OFF);
+                _fingerprintAuthHelper.stopAuth();
+                _fingerprintAuthHelper.startAuth();
+                _fingerprintInfoTextView.setText("출석 요청을 완료하였습니다. \n재 인증을 원하시면 지문을 다시 인증해주세요");
+            }
+            if(_isFingerprintFlag==TRUE) {
+
+                _fingerprintLimitTimeCount++;
+                if (_fingerprintLimitTimeCount >= 10) {
+                    //nonckFing();
+                    _isFingerprintFlag = FALSE;
+
+                    _fingerprintSwirlView.setState(SwirlView.State.OFF);
+
+                    _fingerprintAuthHelper.stopAuth();
+
+                    _fingerprintAuthHelper.startAuth();
+
+                    _fingerprintLimitTimeCount = 0;
+
+                    _fingerprintInfoTextView.setText("지문을 재 인증 해주세요");
+                }
+            }
+
+            //FingerCheck();//지문인식
+
+            _flagCheckingHandler.sendEmptyMessageDelayed(0, 1000);
+
+
+        }
+    };
+
+
+
+
+    /*!
+    @breif 서버로 로그인 요청 보냄
+     */
+    private void beaconCheckRequest() {
+        //alias this
+
+
+        Intent intent = getIntent();
+
+        AsyncHttpClient beaconCheck = new AsyncHttpClient();
+
+        beaconCheck.addHeader(getString(R.string.auth_key), CookieManager.getInstance().getCookie(getString(R.string.token_key)));
+
+        RequestParams params = new RequestParams();
+
+        try {
+            params.put("lecture", intent.getStringExtra("lecture_id"));
+            params.put("lectureUuid", _beaconUuidTextData);
+            params.put("reach", _beaconLimitDistance);
+        } catch (Exception e) {
+
+        }
+
+        String beaconRequestURL = getString(R.string.server_url) + getString(R.string.beacon_check_request);
+        beaconCheck.post(this, beaconRequestURL, params, new JsonHttpResponseHandler(){
+            //로그인 성공
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                super.onSuccess(statusCode, headers, response);
+
+                //성공
+            }
+
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                super.onFailure(statusCode, headers, throwable, errorResponse);
+                //실패
+
+
+
+            }
+        });
+    }
+
 }

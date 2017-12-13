@@ -13,14 +13,30 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
+        android:layout_marginTop="16dp"
         android:text="비콘 찾는 중"
         android:textColor="@color/colorAccent"
         android:textSize="18sp"
         android:textStyle="bold"
+        app:layout_constraintHorizontal_bias="0.501"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="32dp" />
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/beacon_searh_data_textView"
+        android:layout_width="103dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="8dp"
+        android:textColor="@color/colorAccent"
+        android:textSize="10sp"
+        android:textStyle="bold"
+        app:layout_constraintHorizontal_bias="0.501"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/beacon_searh_status_textView" />
 
     <ProgressBar
         android:id="@+id/faceverify_progressBar"
@@ -65,6 +81,7 @@
         android:layout_marginBottom="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
+        android:elevation="11dp"
         android:text="지문 인식을 시작하세요."
         android:textColor="@color/colorAccent"
         app:layout_constraintBottom_toTopOf="@+id/swirl_frameLayout"
@@ -75,7 +92,7 @@
         android:id="@+id/beacon_search_pulsatorLayout"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="7dp"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
         app:layout_constraintBottom_toTopOf="@+id/fingerprint_info_textView"
@@ -88,6 +105,7 @@
         app:pulse_repeat="0"
         app:pulse_startFromScratch="false"
         android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@+id/beacon_searh_status_textView" />
+        app:layout_constraintTop_toBottomOf="@+id/beacon_searh_data_textView"
+        app:layout_constraintHorizontal_bias="0.0" />
 
 </android.support.constraint.ConstraintLayout>

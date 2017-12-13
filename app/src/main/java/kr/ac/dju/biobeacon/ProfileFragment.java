@@ -54,6 +54,7 @@ public class ProfileFragment extends Fragment {
      */
     Button _quickCheckButton;
     /*!
+
     @brief 강좌명
      */
     String _lectureTitle;
@@ -66,6 +67,13 @@ public class ProfileFragment extends Fragment {
      */
     String _lectureId;
 
+   @brief 이름
+    */
+    String first_name;
+    /*!
+   @brief 성
+    */
+    String last_name;
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -93,7 +101,6 @@ public class ProfileFragment extends Fragment {
     @brief
      */
     private void initViewElements(View rootView) {
-
         _usernameTextView = (TextView)rootView.findViewById(R.id.username_textView);
         _idNumTextView = (TextView)rootView.findViewById(R.id.idNum_textView);
         _nameTextView = (TextView)rootView.findViewById(R.id.name_textView);
@@ -130,9 +137,13 @@ public class ProfileFragment extends Fragment {
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 super.onSuccess(statusCode, headers, response);
                 try {
+                    // 성, 이름 별개로 미리 출력
+                    last_name = response.getString("last_name");
+                    first_name = response.getString("first_name");
+                    // 프로필 값 받아오기
                     _usernameTextView.setText(response.getString("username"));
                     _idNumTextView.setText(response.getString("id"));
-                    //_nameTextView.setText(response.getString(""));
+                    _nameTextView.setText(last_name+first_name);
                     _emailTextView.setText(response.getString("email"));
                     _departmentTextView.setText(response.getString("department"));
                     Picasso.with(getActivity())

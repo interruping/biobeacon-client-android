@@ -74,6 +74,10 @@ public class RegisterActivity extends AppCompatActivity {
      */
     private EditText _usernameEditText;
     /*!
+   @brief 이메일
+    */
+    private EditText _emailEditText;
+    /*
     @brief 비밀번호
      */
     private EditText _passwordEditText;
@@ -122,7 +126,8 @@ public class RegisterActivity extends AppCompatActivity {
     private void initViewElements() {
         _lastnameEditText = (EditText) findViewById(R.id.lastname_editText);
         _firstnameEditText = (EditText) findViewById(R.id.firstname_editText);
-        _usernameEditText = (EditText) findViewById(R.id.lastname_editText);
+        _usernameEditText = (EditText) findViewById(R.id.username_editText);
+        _emailEditText = (EditText) findViewById(R.id.email_editText);
         _passwordEditText = (EditText) findViewById(R.id.password_editText);
         _passwordConfirmEditText = (EditText) findViewById(R.id.password_confirm_editText);
         _idNumEditText = (EditText) findViewById(R.id.idNum_editText);
@@ -152,39 +157,43 @@ public class RegisterActivity extends AppCompatActivity {
             }
         });
     }
+
     /*!
     @brief 회원가입 입력 중 누락 확인
      */
     private boolean checkBlank() {
         boolean result = false;
 
-        if ( result ) return true;
+        if (result) return true;
 
         result = _lastnameEditText.getText().toString().isEmpty();
-        if ( result ) return true;
+        if (result) return true;
         result = _firstnameEditText.getText().toString().isEmpty();
-        if ( result ) return true;
+        if (result) return true;
         result = _usernameEditText.getText().toString().isEmpty();
-        if ( result ) return true;
+        if (result) return true;
+        result = _emailEditText.getText().toString().isEmpty();
+        if (result) return true;
         result = _passwordEditText.getText().toString().isEmpty();
-        if ( result ) return true;
+        if (result) return true;
         result = _passwordConfirmEditText.getText().toString().isEmpty();
-        if ( result ) return true;
+        if (result) return true;
         result = _passwordConfirmEditText.getText().toString().equals(_passwordEditText.getText().toString()) ? false : true;
-        if ( result ) return true;
+        if (result) return true;
         result = _idNumEditText.getText().toString().isEmpty();
-        if ( result ) return true;
+        if (result) return true;
         result = _uploadedImageId == 0 ? true : false;
-        if ( result ) return true;
+        if (result) return true;
         result = _departmentsSpinner.getSelectedItemPosition() == 0 ? true : false;
 
         return result;
     }
+
     /*!
     @brief 회원가입 하기
      */
     private void doRegister() {
-        if ( checkBlank() ) {
+        if (checkBlank()) {
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
             alertDialogBuilder.setTitle("회원가입 오류");
             alertDialogBuilder.setMessage("입력하지 않은 값이 있습니다.");
@@ -192,6 +201,7 @@ public class RegisterActivity extends AppCompatActivity {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
                     //확인을 눌렀을 때
+
                 }
             });
             alertDialogBuilder.setCancelable(false);
@@ -200,8 +210,55 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
+        //아이디, 성,이름, 이메일 서버로 전송
 
+        AsyncHttpClient uploadClient = new AsyncHttpClient();
+
+        RequestParams params = new RequestParams();
+
+        try {
+            params.put("first_name", _firstnameEditText.getText().toString());
+            params.put("last_name", _lastnameEditText.getText().toString());
+            params.put("username", _usernameEditText.getText().toString());
+            params.put("email", _emailEditText.getText().toString());
+            params.put("password", _passwordEditText.getText().toString());
+            params.put("confirm-password", _passwordConfirmEditText.getText().toString());
+            params.put("is_staff", "false");
+            params.put("id", _idNumEditText.getText().toString());
+            params.put("department", _departmentsMap.get(_departmentsSpinner.getSelectedItem()));
+            params.put("profile_image_id", _uploadedImageId);
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        String uploadURL = getString(R.string.server_url) + getString(R.string.profile_upload);
+
+        uploadClient.put(this, uploadURL, params, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                super.onSuccess(statusCode, headers, response);
+                try {
+                        dialog();
+                } catch (Exception e) {
+                    //응답은 성공하였으나 값을 제대로 못 받음
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                super.onFailure(statusCode, headers, throwable, errorResponse);
+            }
+        });
     }
+
+
+
+
+
+
 
     /*!
     @brief 프로필 사진 받기
@@ -327,5 +384,23 @@ public class RegisterActivity extends AppCompatActivity {
         });
     }
 
+
+    private void dialog(){
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+        alertDialogBuilder.setTitle("축하합니다.");
+        alertDialogBuilder.setMessage("회원가입이 완료되었습니다.");
+        alertDialogBuilder.setPositiveButton("확인", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                //확인을 눌렀을 때
+                Intent intent=new Intent(RegisterActivity.this,LoginActivity.class);
+                startActivity(intent);
+
+            }
+        });
+        alertDialogBuilder.setCancelable(false);
+        alertDialogBuilder.show();
+
+    }
 
 }

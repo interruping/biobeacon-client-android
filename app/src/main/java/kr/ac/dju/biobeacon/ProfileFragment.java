@@ -3,9 +3,7 @@ package kr.ac.dju.biobeacon;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -55,6 +53,19 @@ public class ProfileFragment extends Fragment {
     @brief 빠른출석 버튼
      */
     Button _quickCheckButton;
+    /*!
+    @brief 강좌명
+     */
+    String _lectureTitle;
+    /*!
+    @brief 강좌 번호
+     */
+    String _lectureNum;
+    /*!
+    @brief 강좌 PK
+     */
+    String _lectureId;
+
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -147,11 +158,9 @@ public class ProfileFragment extends Fragment {
     @brief 빠른 출석 액티비티 띄움
      */
     private void doQuickCheck () {
-        Intent attendanceCheckIntent = new Intent(getActivity(), AttendanceCheckActivity.class);
-        BitmapDrawable drawable = (BitmapDrawable) _profileImageView.getDrawable();
-        Base64EncodedImagePassHelper.save(BitmapUtil.BitmapToBase64(drawable.getBitmap()));
-        attendanceCheckIntent.putExtra("username", _usernameTextView.getText().toString());
-        startActivity(attendanceCheckIntent);
+
+        fastLectureSearch();
+
     }
 
     @Override
@@ -166,4 +175,52 @@ public class ProfileFragment extends Fragment {
 
     }
 
+
+
+    /*!
+    @breif 빠른강좌 찾기
+     */
+    private void fastLectureSearch() {
+
+        AsyncHttpClient fastLectureView = new AsyncHttpClient();
+
+        fastLectureView.addHeader(getString(R.string.auth_key), CookieManager.getInstance().getCookie(getString(R.string.token_key)));
+
+        String fastLecURL = getString(R.string.server_url) + getString(R.string.fast_lecture_search);
+
+        fastLectureView.get(fastLecURL, new JsonHttpResponseHandler(){
+            //불러오기 성공
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                super.onSuccess(statusCode, headers, response);
+                try {
+                    _lectureTitle = (response.getString("lecture_title"));
+                    _lectureNum = (response.getString("lecture_num"));
+                    _lectureId = (response.getString("lecture_id"));
+
+
+                    Intent attendanceCheckIntent = new Intent(getActivity(), AttendanceCheckActivity.class);
+                    BitmapDrawable drawable = (BitmapDrawable) _profileImageView.getDrawable();
+                    Base64EncodedImagePassHelper.save(BitmapUtil.BitmapToBase64(drawable.getBitmap()));
+                    attendanceCheckIntent.putExtra("username", _usernameTextView.getText().toString());
+                    attendanceCheckIntent.putExtra("lecture_title", _lectureTitle);
+                    attendanceCheckIntent.putExtra("lecture_num", _lectureNum);
+                    attendanceCheckIntent.putExtra("lecture_id", _lectureId);
+                    startActivity(attendanceCheckIntent);
+                } catch (Exception e) {
+                    //응답은 성공하였으나 값이 올바르지 않음
+                    e.printStackTrace();
+
+                }
+            }
+            //불러오기 실패
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                super.onFailure(statusCode, headers, throwable, errorResponse);
+
+
+            }
+        });
+
+    }
 }

@@ -25,6 +25,7 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
 
+
     compile 'com.android.support:appcompat-v7:26.+'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'com.loopj.android:android-async-http:1.4.9'
@@ -35,6 +36,5 @@ dependencies {
     compile 'com.android.support:support-v4:26.+'
     compile 'com.multidots:fingerprint-auth:1.0.1'
     compile 'pl.bclogic:pulsator4droid:1.0.3'
-
     testCompile 'junit:junit:4.12'
 }

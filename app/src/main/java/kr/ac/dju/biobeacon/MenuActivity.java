@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 
+import android.support.v4.app.Fragment;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -81,10 +82,22 @@ public class MenuActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_camera) {
-            // Handle the camera action
+            FragmentManager fm = getFragmentManager();
+            FragmentTransaction fragmentTransaction = fm.beginTransaction();
+            fragmentTransaction.replace(R.id.menu_content, new ProfileFragment());
+            fragmentTransaction.commit();
+
         } else if (id == R.id.nav_gallery) {
+            FragmentManager fm = getFragmentManager();
+            FragmentTransaction fragmentTransaction = fm.beginTransaction();
+            fragmentTransaction.replace(R.id.menu_content, new AvailableLectureListFragment());
+            fragmentTransaction.commit();
 
         } else if (id == R.id.nav_slideshow) {
+            FragmentManager fm = getFragmentManager();
+            FragmentTransaction fragmentTransaction = fm.beginTransaction();
+            fragmentTransaction.replace(R.id.menu_content, new LectureLsitFragment());
+            fragmentTransaction.commit();
 
         } else if (id == R.id.nav_manage) {
 

@@ -2,8 +2,10 @@
     <string name="app_name">BioBeacon</string>
     <string name="title_activity_register">RegisterActivity</string>
 
-
-    <string name="server_url">http://192.168.43.248:8000</string>
+    <string name="server_url">https://www.biobeacon.net</string>
+    <string name="lecture_list_reqest">/attendance_check/api/lecture/request/view/</string>
+    <string name="lecture_list">/attendance_check/api/lecture/request/list/</string>
+    <string name="lecture_list_url">/attendance_check/api/lecture/available/list/</string>
     <string name="department_list_url">/attendance_check/api/department/list/</string>
     <string name="profile_image_upload_url">/attendance_check/api/profile/image/upload/</string>
     <string name="user_auth_url">/attendance_check/api/user_auth/</string>

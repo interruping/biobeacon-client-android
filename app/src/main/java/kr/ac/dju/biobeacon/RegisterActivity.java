@@ -11,6 +11,7 @@ import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.webkit.CookieManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -353,6 +354,8 @@ public class RegisterActivity extends AppCompatActivity {
 
         AsyncHttpClient uploadClient = new AsyncHttpClient();
 
+
+        uploadClient.addHeader(getString(R.string.auth_key), CookieManager.getInstance().getCookie(getString(R.string.token_key)));
         RequestParams params = new RequestParams();
 
         try {

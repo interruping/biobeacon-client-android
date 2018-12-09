@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id ="@+id/lecturelist"
-    tools:context="kr.ac.dju.biobeacon.LectureLsitFragment">
+    tools:context="kr.ac.dju.biobeacon.LectureListFragment">
 
     <!-- TODO: Update blank fragment layout -->
 

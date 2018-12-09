@@ -3,11 +3,7 @@ package kr.ac.dju.biobeacon;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 
-import android.support.v4.app.Fragment;
-import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -96,7 +92,7 @@ public class MenuActivity extends AppCompatActivity
         } else if (id == R.id.nav_slideshow) {
             FragmentManager fm = getFragmentManager();
             FragmentTransaction fragmentTransaction = fm.beginTransaction();
-            fragmentTransaction.replace(R.id.menu_content, new LectureLsitFragment());
+            fragmentTransaction.replace(R.id.menu_content, new LectureListFragment());
             fragmentTransaction.commit();
 
         } else if (id == R.id.nav_manage) {

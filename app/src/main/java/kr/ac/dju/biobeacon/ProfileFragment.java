@@ -67,6 +67,7 @@ public class ProfileFragment extends Fragment {
      */
     String _lectureId;
 
+    /*
    @brief 이름
     */
     String first_name;

@@ -75,8 +75,6 @@ public class AvailableLectureListFragment extends Fragment {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         //확인을 눌렀을 때
-
-
                         lecturereqest(list,_position);
                     }
                 });
@@ -84,10 +82,6 @@ public class AvailableLectureListFragment extends Fragment {
                 alertDialogBuilder.show();
             }
         });
-
-
-
-
 
         return rootView;
     }
@@ -154,8 +148,6 @@ public class AvailableLectureListFragment extends Fragment {
 
 
         AsyncHttpClient uploadClient = new AsyncHttpClient();
-
-
 
         uploadClient.addHeader(getString(R.string.auth_key), CookieManager.getInstance().getCookie(getString(R.string.token_key)));
         RequestParams params = new RequestParams();

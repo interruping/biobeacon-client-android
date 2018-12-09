@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import cz.msebera.android.httpclient.Header;
 
 
-public class LectureLsitFragment extends android.app.Fragment {
+public class LectureListFragment extends android.app.Fragment {
 
     ArrayList<LectureData> list = new ArrayList<>();
 
@@ -40,7 +40,7 @@ public class LectureLsitFragment extends android.app.Fragment {
     private ArrayList<String> mList;
     private ListView mListView;
     private ArrayAdapter mAdapter;
-    public LectureLsitFragment() {
+    public LectureListFragment() {
         // Required empty public constructor
     }
 
@@ -73,7 +73,6 @@ public class LectureLsitFragment extends android.app.Fragment {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         //확인을 눌렀을 때
-
                         lecturecheck(list, _position);
                     }
                 });
@@ -92,16 +91,15 @@ public class LectureLsitFragment extends android.app.Fragment {
 
         String profileURL = getString(R.string.server_url) + getString(R.string.lecture_list);
 
-
         profileLoadClient.get(getActivity(), profileURL, new JsonHttpResponseHandler(){
             //불러오기 성공
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 super.onSuccess(statusCode, headers, response);
                 try {
                     int count;
-                    for(count = 0; count< response.length(); count++) {
-                        JSONArray ja = response;
+                    JSONArray ja = response.getJSONArray("result");
+                    for(count = 0; count< ja.length(); count++) {
                         JSONObject order = ja.optJSONObject(count);
                         String lecture_title = order.getString("lecture");
                         String lecture_id = order.getString("pk");

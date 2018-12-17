@@ -6,23 +6,6 @@
     android:id ="@+id/fragment_profile"
     tools:context="kr.ac.dju.biobeacon.ProfileFragment">
 
-    <Button
-        android:id="@+id/quick_attendace_check_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="24dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:background="@drawable/accent_ripple_button"
-        android:elevation="16dp"
-        android:text="빠른출석"
-        android:textColor="@android:color/white"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent" />
-
     <ScrollView
         android:layout_width="0dp"
         android:layout_height="0dp"

@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">BioBeacon</string>
     <string name="title_activity_register">RegisterActivity</string>
-    <string name="server_url">http://192.168.219.155:8000</string>
+    <string name="server_url">http://192.168.219.131:8000</string>
     <string name="lecture_list_reqest">/attendance_check/api/lecture/request/view/</string>
     <string name="lecture_list">/attendance_check/api/lecture/request/list/</string>
     <string name="lecture_list_url">/attendance_check/api/lecture/available/list/</string>
@@ -9,17 +9,19 @@
     <string name="profile_image_upload_url">/attendance_check/api/profile/image/upload/</string>
     <string name="user_auth_url">/attendance_check/api/user_auth/</string>
     <string name="profile_url">/attendance_check/api/profile/</string>
+    <string name="request_attendance">/attendance_check/api/lecture/request/attendance/</string>
+
 
     <string name="fast_lecture_search">/attendance_check/api/lecture/fastest/view/</string>
     <string name="beacon_check_request">/attendance_check/api/lecture/check/uuid/</string>
-
+    <string name="beacon_uuid">/attendance_check/api/lecture/beacon/uuid/</string>
 
 
     <string name="profile_upload">/attendance_check/api/user_register/</string>
     <string name="auth_key">Authorization</string>
     <string name="token_key">biobeaon-token-key</string>
 
-    <string name="title_activity_menu">MenuActivity</string>
+    <string name="title_activity_menu">BioBeacon 앱</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>

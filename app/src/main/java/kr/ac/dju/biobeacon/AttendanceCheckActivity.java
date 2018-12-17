@@ -39,6 +39,7 @@ import org.altbeacon.beacon.Beacon;
 import org.altbeacon.beacon.BeaconConsumer;
 import org.altbeacon.beacon.BeaconManager;
 import org.altbeacon.beacon.BeaconParser;
+import org.altbeacon.beacon.Identifier;
 import org.altbeacon.beacon.RangeNotifier;
 import org.altbeacon.beacon.Region;
 import org.json.JSONArray;
@@ -176,13 +177,20 @@ public class AttendanceCheckActivity extends AppCompatActivity implements Finger
      */
     boolean _isBeaconConnectFlag;
 
+    private int _lectureID;
+
+    private String _id1;
+    private String _id2;
+    private String _id3;
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_attendance_check);
         initModelElements();
         initViewElements();
 
-
+        Bundle b = getIntent().getExtras();
+        _lectureID = b.getInt("lecture_id");
 
 
         _flagCheckingHandler.sendEmptyMessage(0);
@@ -197,21 +205,42 @@ public class AttendanceCheckActivity extends AppCompatActivity implements Finger
                 .forPermissions(Manifest.permission.ACCESS_FINE_LOCATION)
                 .withRationales("비콘 감지를 위한 권한을 요청합니다.") //optional
                 .go();
-        /*!
-        @breif 비콘 객체 초기화
-         */
-        _beaconManager = BeaconManager.getInstanceForApplication(this);
+        _beaconManager = BeaconManager.getInstanceForApplication(AttendanceCheckActivity.this);
         _beaconSerchDataTextView = (TextView) findViewById(R.id.beacon_searh_data_textView);
 
-        /*!
-        @breif 비콘 탐지 레이아웃 설정
-         */
         _beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout("m:2-3=0215,i:4-19,i:20-21,i:22-23,p:24-24,d:25-25"));
 
-        /*!
-        @breif 비콘 탐지 시작
-         */
-        _beaconManager.bind(this);
+        AsyncHttpClient uuidGet = new AsyncHttpClient();
+        uuidGet.addHeader(getString(R.string.auth_key), CookieManager.getInstance().getCookie(getString(R.string.token_key)));
+
+        JSONObject jsonParams = new JSONObject();
+        StringEntity entity = null;
+
+        try {
+            jsonParams.put("lec_id", _lectureID);
+            entity = new StringEntity(jsonParams.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        String uuidURL = getString(R.string.server_url) + getString(R.string.beacon_uuid);
+        uuidGet.post(this, uuidURL, entity, "application/json", new JsonHttpResponseHandler() {
+            //얼굴 등록 성공
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                super.onSuccess(statusCode, headers, response);
+                try {
+                    _id1 = response.getString("uuid");
+                    _id2 = response.getString("major");
+                    _id3 = response.getString("minor");
+                } catch (Exception e) {
+
+                }
+
+                _beaconManager.bind(AttendanceCheckActivity.this);
+            }
+
+        });
     }
 
     @Override
@@ -371,7 +400,7 @@ public class AttendanceCheckActivity extends AppCompatActivity implements Finger
 
             _fingerprintSwirlView.setState(SwirlView.State.ON);
             _isFingerprintFlag = TRUE;
-            }
+        }
         _fingerprintInfoTextView.setText("지문 인식 성공");
 
     }
@@ -637,11 +666,10 @@ public class AttendanceCheckActivity extends AppCompatActivity implements Finger
                     }
                 }
             }
-
         });
 
         try {
-            _beaconManager.startRangingBeaconsInRegion(new Region("myRangingUniqueId", null, null, null));
+            _beaconManager.startRangingBeaconsInRegion(new Region("myRangingUniqueId", Identifier.parse(_id1),  Identifier.parse(_id2),  Identifier.parse(_id3)));
         } catch (RemoteException e) {
         }
 
@@ -663,17 +691,17 @@ public class AttendanceCheckActivity extends AppCompatActivity implements Finger
 
     Handler _beaconSearchHandler = new Handler() {
         public void handleMessage(Message msg) {
-            _isBeaconConnectFlag=TRUE;
+
 
             int flag = 0;
             //ckBea();
             _beaconSerchDataTextView.setText("");
             // 비콘의 아이디와 거리를 측정하여 textView에 넣는다.
             for (Beacon beacon : beaconList) {
-
+                _isBeaconConnectFlag=TRUE;
                 _beaconUuidTextData = (beacon.getId1().toString()).replace("-","");
                 _beaconLimitDistance = (int)parseDouble(String.format("%.3f", beacon.getDistance()));
-                _beaconSerchDataTextView.append("강의실 : " + _beaconUuidTextData.substring(15, 20)  + "\nDistance : " + parseDouble(String.format("%.3f", beacon.getDistance())) + "m\n");
+                _beaconSerchDataTextView.append("거리 : " + parseDouble(String.format("%.3f", beacon.getDistance())) + "m\n");
                 _beaconSearchStatusTextView.setText("비콘 연결됨");
 
 
@@ -750,10 +778,6 @@ public class AttendanceCheckActivity extends AppCompatActivity implements Finger
      */
     private void beaconCheckRequest() {
         //alias this
-
-
-        Intent intent = getIntent();
-
         AsyncHttpClient beaconCheck = new AsyncHttpClient();
 
         beaconCheck.addHeader(getString(R.string.auth_key), CookieManager.getInstance().getCookie(getString(R.string.token_key)));
@@ -761,14 +785,12 @@ public class AttendanceCheckActivity extends AppCompatActivity implements Finger
         RequestParams params = new RequestParams();
 
         try {
-            params.put("lecture", intent.getStringExtra("lecture_id"));
-            params.put("lectureUuid", _beaconUuidTextData);
-            params.put("reach", _beaconLimitDistance);
+            params.put("lec_id", _lectureID);
         } catch (Exception e) {
 
         }
 
-        String beaconRequestURL = getString(R.string.server_url) + getString(R.string.beacon_check_request);
+        String beaconRequestURL = getString(R.string.server_url) + getString(R.string.request_attendance);
         beaconCheck.post(this, beaconRequestURL, params, new JsonHttpResponseHandler(){
             //로그인 성공
             @Override

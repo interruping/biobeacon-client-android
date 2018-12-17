@@ -136,13 +136,13 @@ public class LectureListFragment extends android.app.Fragment {
 
 
     private void lecturecheck(ArrayList<LectureData> data, int position) {
-        String _lectureTitle =  data.get(position).get_LectureData();
-        String _lectureId =  data.get(position).get_id();
-
+        String lectureTitle =  data.get(position).get_LectureData();
+        String lectureId =  data.get(position).get_id();
+        int lntegerLectureId = Integer.parseInt(lectureId);
 
         Intent attendanceCheckIntent = new Intent(getActivity(), AttendanceCheckActivity.class);
-        attendanceCheckIntent.putExtra("lecture_title", _lectureTitle);
-        attendanceCheckIntent.putExtra("lecture_id", _lectureId);
+        attendanceCheckIntent.putExtra("lecture_title", lectureTitle);
+        attendanceCheckIntent.putExtra("lecture_id", lntegerLectureId);
         startActivity(attendanceCheckIntent);
     }
 
